@@ -1,0 +1,94 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Hero - Admin</title>
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <script src="./lib/jquery-1.12.2.js"></script>
+    <script>
+        // 上传图片
+        function uploadImg() {
+            //1. 获取图片file对象
+            const file = $("#uploadInput")[0].files['0'];
+            // 2.创建formData对象
+            const formData = new FormData();
+            formData.append("avatar", file);
+            // 3.发送ajax
+            $.post({
+                url: 'http://127.0.0.1:3001/uploadFile',
+                data: formData,
+                dataType: 'json',
+                processData: false,
+                contentType: false,
+                success: (res) => {
+                    if (res.code == 0) {
+                        const path = 'http://127.0.0.1:3001/' + res.src;
+                        $("#photo").prop('src', path);
+                        // 用隐藏的input框的内容添加图片地址
+                        $("#myUploadImage").val(path);
+
+                    }
+                }
+            });
+
+        }
+
+        // 添加英雄数据
+        function addHero() {
+            // 获取表单内的英雄数据，img路径保存在name=“img”的input框，serialize读取name类名作为拼接内容
+            const heroData = $("#myform").serialize(); //name=1 & gender=%E5%A5%B3 & img=
+            $.post("http://127.0.0.1:3001/addHero", heroData, (res) => {
+                if (res.code == 200) {
+                    alert(res.msg);
+                    window.location.href = "./index.html";
+                }
+            });
+
+        }
+    </script>
+</head>
+
+<body>
+    <header>
+        <div class="page-header container">
+            <h1>王者荣耀 <small>英雄管理器</small></h1>
+        </div>
+    </header>
+    <div class="container hero-list">
+        <form id='myform'>
+            <table class="table table-hover">
+                <tbody>
+                    <tr>
+                        <td>姓名：</td>
+                        <td><input type="text" name="name"></td>
+                    </tr>
+                    <tr>
+                        <td>性别：</td>
+                        <td>
+                            <input id="man" name="gender" value="男" type="radio" checked>
+                            <label for="man">男</label>
+                            <input name="gender" value="女" type="radio" id="female ">
+                            <label for="female ">女</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>头像：</td>
+                        <td>
+                            <img src="./images/default.png" alt="" id="photo" width="100"
+                                style='border: 1px solid #ccc;margin-bottom: 5px;'>
+                            <input type="file" id="uploadInput" onchange="uploadImg()">
+                            <!-- 隐藏的输入框 ,通过serialize传输img路径 -->
+                            <input hidden name="img" id="myUploadImage" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                        <td><input type="button" id="sub" value="新增" onclick="addHero()"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+</body>
+
+</html>
